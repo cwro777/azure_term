@@ -1,0 +1,15 @@
+// 테이블 생성
+CREATE TABLE crawller (
+	company_name VARCHAR(50),
+	price int
+);
+
+// 테스트 데이터 삽입
+INSERT INTO crawller (company_name, price) values('test', 100);
+
+// 테이블에 저장된 튜플 확인
+SELECT * FROM crawller;
+
+// 한글 깨짐을 처리하기 위한 SQL문
+ALTER TABLE dbo.crawller
+ALTER COLUMN company_name VARCHAR(50) COLLATE Latin1_General_100_CI_AI_SC_UTF8

@@ -1,0 +1,26 @@
+import requests
+import pandas as pd
+from pandas.io.json import json_normalize
+import json
+
+url = 'http://apis.data.go.kr/6260000/BusanAedService/getAedList'
+params ={'serviceKey' : 'gwdFRsL/Ui6MaLvDLinFw6uA171Gg9/a91bC3k1lfRDzqtvnYJJz2mwX2z/EWgOiUHJ9TyQIeeoua4f3i3ZlHw==',
+         'pageNo' : '1', 'numOfRows' : '1079', 'resultType' : 'json'} #serviceKey에 본인의 서비스키 입력
+
+response = requests.get(url, params=params)
+
+contents = response.text
+
+json_ob = json.loads(contents)
+body = json_ob['getAedList']['item']
+
+df = json_normalize(body)
+
+df_loc = df.loc[:,['addrs','geom']]
+df_loc_1 = pd.DataFrame((df_loc['geom']).apply(lambda v: v.split()[:2]).tolist(), columns = ('Y', 'X'))
+df_loc_Xslice = df_loc_1['Y'].str.slice(start=6)
+df_loc_Yslice = df_loc_1['X'].str.slice(stop=-1)
+df_loc_1 = pd.concat([df_loc_Xslice, df_loc_Yslice],axis=1)
+df_loc = pd.concat([df_loc['addrs'], df_loc_1], axis=1)
+df_loc_drop = df_loc.drop_duplicates(['Y', 'X'], keep = 'first')
+df_loc_drop.to_csv('test.csv', encoding='utf-8')
